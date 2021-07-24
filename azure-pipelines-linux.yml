@@ -1,0 +1,43 @@
+trigger:
+  batch: true
+
+variables:
+  testConfiguration: 'Debug'
+
+jobs:
+- job: Linux
+  pool:
+    vmImage: 'ubuntu-20.04'
+  steps:
+  - task: UseDotNet@2
+    displayName: 'Install .NET'
+    inputs:
+      version: 5.0.x
+  - task: DotNetCoreCLI@2
+    displayName: 'Restore'
+    inputs:
+      command: restore
+      restoreArguments: '--locked-mode'
+      feedsToUse: 'config'
+      nugetConfigPath: 'nuget.config'
+    displayName: 'Build Debug'
+    inputs:
+      command: build
+      arguments: --no-restore --configuration Debug
+  - task: DotNetCoreCLI@2
+    displayName: 'Build Release'
+    inputs:
+      command: build
+      arguments: --no-restore --configuration Release
+  - task: DotNetCoreCLI@2
+    displayName: 'Test Debug'
+    inputs:
+      command: test
+      projects: 'NeoCoco.Tests/NeoCoco.Tests.csproj'
+      arguments: --configuration $(testConfiguration) --logger "console;verbosity=detailed" --collect:"XPlat Code Coverage"
+  - task: PublishCodeCoverageResults@1
+    displayName: 'Publish code coverage report'
+    inputs:
+      codeCoverageTool: 'Cobertura'
+      summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
+      pathToSources: '$(System.DefaultWorkingDirectory)/'

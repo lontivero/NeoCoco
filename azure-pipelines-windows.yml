@@ -25,14 +25,3 @@ jobs:
     inputs:
       command: build
       arguments: --no-restore --configuration Debug
-  - task: DotNetCoreCLI@2
-    displayName: 'Build Release'
-    inputs:
-      command: build
-      arguments: --no-restore --configuration Release
-  - task: DotNetCoreCLI@2
-    displayName: 'Test Debug'
-    inputs:
-      command: test
-      projects: 'NeoCoco.Tests/NeoCoco.Tests.csproj'
-      arguments: --configuration $(testConfiguration) --logger "console;verbosity=detailed"
